@@ -47,6 +47,33 @@ func (service *FriendService) GetFriends(userId string) ([]*dto.GetFriendRespons
 	return data, nil
 }
 
+// GetFriend 친구 정보 조회
+func (service *FriendService) GetFriend(userId string, friendId string) (string, error) {
+	var friend *model.Friend
+
+	// 친구 요청 전송, 수신 여부 확인
+	err := service.DB.
+		Where("((userId = ? AND friendId = ?) OR (userId = ? AND friendId = ?))", userId, friendId, friendId, userId).
+		Find(&friend).
+		Error
+
+	if err != nil {
+		return "", errors.DBError
+	}
+
+	status := ""
+	if friend.UserId == "" {
+		status = "none"
+	} else if friend.IsFriend {
+		status = "friend"
+	} else if friend.UserId == userId {
+		status = "received"
+	} else {
+		status = "sent"
+	}
+	return status, nil
+}
+
 // GetFriendRequests 친구 스토리 조회
 func (service *FriendService) GetFriendRequests(userId string) (dto.GetFriendRequestResponse, error) {
 	var friendRequests []*model.Friend
@@ -85,7 +112,7 @@ func (service *FriendService) CreateFriendRequest(userId string, friendId string
 
 	// 친구 요청 전송, 수신 여부 확인
 	err = service.DB.Model(&model.Friend{}).
-		Where("((userId = ? AND friendId = ?) OR (userId = ? AND friendId = ?)) AND isFriend = ?", userId, friendId, friendId, userId, false).
+		Where("((userId = ? AND friendId = ?) OR (userId = ? AND friendId = ?)) AND isFriend = false", userId, friendId, friendId, userId).
 		Count(&count).
 		Error
 

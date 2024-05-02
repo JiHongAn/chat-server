@@ -26,6 +26,7 @@ func (controller *FriendController) RegisterRoutes(router *gin.Engine) {
 	private := router.Group("/")
 	private.Use(middleware.JwtAuth())
 	private.GET("/friends", controller.GetFriends)
+	private.GET("/friends/:id", controller.GetFriend)
 	private.GET("/friends/requests", controller.GetFriendRequests)
 	private.POST("/friends/requests", controller.CreateFriendRequest)
 	private.POST("/friends/accepts", controller.FriendRequestAccept)
@@ -40,6 +41,23 @@ func (controller *FriendController) GetFriends(context *gin.Context) {
 		return
 	}
 	utils.ApiSuccessResponse(context, friends)
+}
+
+// GetFriend 친구 정보 조회
+func (controller *FriendController) GetFriend(context *gin.Context) {
+	friendId := context.Param("id")
+
+	if friendId == "" {
+		utils.ApiErrorResponse(context, errors.InvalidRequest)
+		return
+	}
+
+	status, err := controller.Service.GetFriend(context.GetString("id"), friendId)
+	if err != nil {
+		utils.ApiErrorResponse(context, err)
+		return
+	}
+	utils.ApiSuccessResponse(context, status)
 }
 
 // GetFriendRequests 친구 요청 조회
