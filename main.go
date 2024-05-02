@@ -20,10 +20,10 @@ func main() {
 		utils.ApiErrorResponse(c, errors.ApiNotFound)
 	})
 
-	// User
-	userService := service.NewUserService(database.DB)
-	userController := controller.NewUserController(userService)
-	userController.RegisterRoutes(router)
+	// Friend
+	friendService := service.NewFriendService(database.DB)
+	friendController := controller.NewFriendController(friendService)
+	friendController.RegisterRoutes(router)
 
 	// Run
 	router.Run(config.AppConfig.Server.Port)
