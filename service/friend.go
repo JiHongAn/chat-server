@@ -31,16 +31,9 @@ func (service *FriendService) GetFriends(userId string) ([]*dto.GetFriendRespons
 	data := []*dto.GetFriendResponse{}
 
 	for _, friend := range friends {
-		var privateRoomIdPtr *string
-		if friend.PrivateRoomId != "" {
-			privateRoomIdPtr = &friend.PrivateRoomId
-		} else {
-			privateRoomIdPtr = nil
-		}
-
 		data = append(data, &dto.GetFriendResponse{
 			FriendId:        friend.FriendId,
-			PrivateRoomId:   privateRoomIdPtr,
+			PrivateRoomId:   friend.PrivateRoomId,
 			LastReadStoryId: friend.LastReadStoryId,
 		})
 	}
